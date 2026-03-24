@@ -6,10 +6,10 @@ final class MapRenderer: NSObject, MTKViewDelegate {
 
     let device: MTLDevice
     private let commandQueue: MTLCommandQueue
-    private let pipelineState: MTLRenderPipelineState
+    private let debugPipeline: MTLRenderPipelineState
     private let vertexBuffer: MTLBuffer
     private let indexBuffer: MTLBuffer
-    private(set) var heightMapTexture: MTLTexture?
+    private(set) var debugTexture: MTLTexture?
 
     override init() {
         guard let device = MTLCreateSystemDefaultDevice() else {
@@ -26,8 +26,8 @@ final class MapRenderer: NSObject, MTKViewDelegate {
             fatalError("Could not load default Metal library")
         }
         guard let vertexFunction = library.makeFunction(name: "heightmap_vertex"),
-              let fragmentFunction = library.makeFunction(name: "heightmap_fragment") else {
-            fatalError("Could not find heightmap shader functions")
+              let fragmentFunction = library.makeFunction(name: "debug_rgba_fragment") else {
+            fatalError("Could not find debug shader functions")
         }
 
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
@@ -36,17 +36,17 @@ final class MapRenderer: NSObject, MTKViewDelegate {
         pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
 
         do {
-            pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+            debugPipeline = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
         } catch {
             fatalError("Could not create render pipeline state: \(error)")
         }
 
         // Full-screen quad: 4 vertices covering clip space
         let vertices: [Vertex] = [
-            Vertex(position: simd_float2(-1, -1), texCoord: simd_float2(0, 1)),  // bottom-left
-            Vertex(position: simd_float2( 1, -1), texCoord: simd_float2(1, 1)),  // bottom-right
-            Vertex(position: simd_float2( 1,  1), texCoord: simd_float2(1, 0)),  // top-right
-            Vertex(position: simd_float2(-1,  1), texCoord: simd_float2(0, 0)),  // top-left
+            Vertex(position: simd_float2(-1, -1), texCoord: simd_float2(0, 1)),
+            Vertex(position: simd_float2( 1, -1), texCoord: simd_float2(1, 1)),
+            Vertex(position: simd_float2( 1,  1), texCoord: simd_float2(1, 0)),
+            Vertex(position: simd_float2(-1,  1), texCoord: simd_float2(0, 0)),
         ]
 
         guard let vb = device.makeBuffer(
@@ -58,7 +58,6 @@ final class MapRenderer: NSObject, MTKViewDelegate {
         }
         self.vertexBuffer = vb
 
-        // Two triangles: bottom-left → bottom-right → top-right, bottom-left → top-right → top-left
         let indices: [UInt16] = [0, 1, 2, 0, 2, 3]
         guard let ib = device.makeBuffer(
             bytes: indices,
@@ -72,33 +71,30 @@ final class MapRenderer: NSObject, MTKViewDelegate {
         super.init()
     }
 
-    func updateHeightMapTexture(from heightMap: HeightMap) {
+    func updateDebugTexture(from rgba: [UInt8], width: Int, height: Int) {
         let descriptor = MTLTextureDescriptor.texture2DDescriptor(
-            pixelFormat: .r32Float,
-            width: heightMap.width,
-            height: heightMap.height,
+            pixelFormat: .rgba8Unorm,
+            width: width,
+            height: height,
             mipmapped: false
         )
         descriptor.usage = .shaderRead
         descriptor.storageMode = .managed
 
-        guard let texture = device.makeTexture(descriptor: descriptor) else {
-            return
-        }
+        guard let texture = device.makeTexture(descriptor: descriptor) else { return }
 
-        heightMap.data.withUnsafeBufferPointer { ptr in
+        rgba.withUnsafeBufferPointer { ptr in
             texture.replace(
                 region: MTLRegion(
                     origin: MTLOrigin(x: 0, y: 0, z: 0),
-                    size: MTLSize(width: heightMap.width, height: heightMap.height, depth: 1)
+                    size: MTLSize(width: width, height: height, depth: 1)
                 ),
                 mipmapLevel: 0,
                 withBytes: ptr.baseAddress!,
-                bytesPerRow: heightMap.width * MemoryLayout<Float>.size
+                bytesPerRow: width * 4
             )
         }
-
-        heightMapTexture = texture
+        debugTexture = texture
     }
 
     // MARK: - MTKViewDelegate
@@ -113,10 +109,10 @@ final class MapRenderer: NSObject, MTKViewDelegate {
             return
         }
 
-        encoder.setRenderPipelineState(pipelineState)
+        encoder.setRenderPipelineState(debugPipeline)
         encoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
 
-        if let texture = heightMapTexture {
+        if let texture = debugTexture {
             encoder.setFragmentTexture(texture, index: 0)
         }
 
