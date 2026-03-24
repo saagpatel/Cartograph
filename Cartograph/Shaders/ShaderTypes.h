@@ -39,4 +39,37 @@ typedef struct {
     uint32_t seed;
 } ErosionParams;
 
+typedef struct {
+    simd_float2 position;
+    simd_float2 normal;
+    float width;
+    float distFromCenter;
+} StrokeVertex;
+
+typedef struct {
+    float baseR;
+    float baseG;
+    float baseB;
+    float grainAmplitude;
+    float edgeDarken;
+    float spotThreshold;
+    uint32_t seed;
+    float _pad0;
+} ParchmentParams;
+
+typedef struct {
+    float aoMin;
+    float aoMax;
+    float oceanOpacity;
+    float vignetteStrength;
+    float seaLevel;
+    float _pad0;
+    float _pad1;
+    float _pad2;
+} TerrainColorParams;
+
+typedef struct {
+    simd_float4 color;
+} StrokeColorParams;
+
 #endif

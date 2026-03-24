@@ -35,6 +35,7 @@ class TerrainEngine {
         case biomeMap = "Biomes"
         case moisture = "Moisture"
         case flowAccumulation = "Flow"
+        case portolan = "Portolan"
     }
     var debugMode: DebugMode = .heightMap
 
@@ -204,6 +205,10 @@ class TerrainEngine {
                 rgba[i * 4 + 2] = v
                 rgba[i * 4 + 3] = 255
             }
+        case .portolan:
+            // Portolan mode is rendered entirely on the GPU; return a blank buffer.
+            // The renderer will not call this path when debugMode == .portolan.
+            break
         }
         return rgba
     }
