@@ -103,7 +103,7 @@ class TerrainEngine {
                 self.stageName = "Assigning biomes..."
             }
 
-            // Stage 4: Climate (0.85 → 1.0)
+            // Stage 4: Climate (0.85 → 0.92)
             let (biomes, moisture) = ClimateModel.generate(
                 heightData: erodedData,
                 width: 1024,
@@ -118,6 +118,23 @@ class TerrainEngine {
                 self.heightMap = finalMap
                 self.biomeMap = biomes
                 self.moistureMap = moisture
+                self.progress = 0.92
+                self.stageName = "Placing settlements..."
+            }
+
+            // Stage 5: Settlements (0.92 → 1.0)
+            let settlements = SettlementPlacer.place(
+                heightData: erodedData,
+                biomeData: biomes.data,
+                riverNodes: riverNodes,
+                width: 1024,
+                height: 1024,
+                seaLevel: seaLevel,
+                plateCount: capturedParams.tectonic.plateCount,
+                seed: capturedParams.tectonic.seed
+            )
+            await MainActor.run {
+                self.settlements = settlements
                 self.isGenerating = false
                 self.progress = 1.0
                 self.stageName = ""

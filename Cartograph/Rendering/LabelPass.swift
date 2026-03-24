@@ -202,6 +202,47 @@ struct LabelPass: RenderPass {
         }
 
         // -----------------------------------------------------------------------
+        // Settlement labels — dot + name below, IM Fell English 14pt
+        // -----------------------------------------------------------------------
+        let settlementFont = makeCTFont(name: "IMFellEnglish-Regular", size: 14)
+            ?? makeCTFont(name: "Georgia-Italic", size: 14)
+            ?? makeCTFont(name: "Georgia", size: 14)
+
+        if let font = settlementFont {
+            for settlement in engine.settlements {
+                // Symbol prefix by type
+                let prefix: String
+                switch settlement.type {
+                case .capital:  prefix = "★ "
+                case .city:     prefix = "● "
+                case .town:     prefix = "◆ "
+                case .fortress: prefix = "▲ "
+                case .port:     prefix = "⚓ "
+                case .village:  prefix = "· "
+                }
+                let text = prefix + settlement.name
+                let px = settlement.position.x * Float(bitmapSize)
+                let py = settlement.position.y * Float(bitmapSize)
+
+                drawLabel(
+                    ctx: ctx,
+                    text: text,
+                    font: font,
+                    color: inkColor,
+                    centerX: CGFloat(px),
+                    centerY: CGFloat(py) + 12,  // offset below dot position
+                    rotation: 0,
+                    occupied: &occupied,
+                    gridCols: gridCols,
+                    gridRows: gridRows,
+                    cellW: cellW,
+                    cellH: cellH,
+                    bitmapSize: CGFloat(bitmapSize)
+                )
+            }
+        }
+
+        // -----------------------------------------------------------------------
         // Upload bitmap to MTLTexture
         // -----------------------------------------------------------------------
         guard
