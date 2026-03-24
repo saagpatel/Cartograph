@@ -1,0 +1,18 @@
+# Generated Xcode project (regenerate with: xcodegen generate)
+*.xcodeproj
+*.xcworkspace
+
+# Build artifacts
+DerivedData/
+.build/
+build/
+
+# Xcode user data
+xcuserdata/
+*.xcuserdata
+
+# Reference charts (dev only, not shipped)
+Resources/ReferenceCharts/
+
+# macOS
+.DS_Store
