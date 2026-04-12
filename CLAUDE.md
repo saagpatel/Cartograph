@@ -1,46 +1,42 @@
 # Cartograph
 
-## Overview
-Cartograph is a native macOS app (SwiftUI + Metal) that generates procedural fantasy world maps rendered in historical cartographic styles. Writers, game designers, and worldbuilders use it to produce maps that look hand-drawn by a historical cartographer — not computer-generated. v1 targets a single style: Age of Exploration portolan chart. Offline-only, no accounts, no network.
+A native macOS app (SwiftUI + Metal) that generates procedural fantasy world maps rendered in historical cartographic styles. Writers, game designers, and worldbuilders use it to produce maps that look hand-drawn by a historical cartographer — not computer-generated. Targets the Age of Exploration portolan chart style. Offline-only, no accounts, no network.
 
 ## Tech Stack
-- Swift: 5.10+ (Xcode 15.4+) — `@Observable` macro, no legacy `ObservableObject`
-- SwiftUI: macOS 14+ — declarative UI only, no AppKit views except MTKView bridge
-- Metal: Metal 3 (macOS 14+) — GPU compute for erosion, GPU render pipeline for style
-- MetalKit: macOS 14+ — `MTKView` + `MTKViewDelegate` as the Metal/SwiftUI bridge
-- Accelerate: stdlib — vDSP for CPU-side noise and biome smoothing
-- Core Text: stdlib — label rendering and font layout
-- No external Swift packages — all algorithms implemented in-house via SPM
+- **Swift**: 5.10+ (Xcode 15.4+) — `@Observable` macro, no legacy `ObservableObject`
+- **SwiftUI**: macOS 14+ — declarative UI, no AppKit views except MTKView bridge
+- **Metal**: Metal 3 (macOS 14+) — 7-pass GPU render pipeline for portolan style
+- **MetalKit**: macOS 14+ — `MTKView` + `MTKViewDelegate` as the Metal/SwiftUI bridge
+- **Accelerate**: vDSP for CPU-side noise and biome smoothing
+- **Core Text**: label rendering and font layout
+- No external Swift packages — all algorithms in-house
 
-## Development Conventions
-- Swift strict concurrency: all pipeline passes run in `Task {}` blocks on background executors; never block the main actor
-- `ShaderTypes.h` is the single source of truth for all Metal/Swift shared structs — never duplicate struct definitions in Swift
-- All coordinate math in normalized UV space (0.0–1.0); convert to pixel space only at render time
-- File naming: PascalCase for Swift types, camelCase for functions, `snake_case` for Metal functions
-- Every new pipeline stage must pass GPU Frame Capture validation before moving to the next task
-- Unit tests required for all terrain data transforms (height map, river network, biome assignment)
+## Status
+Phase 4 complete — all planned functionality shipped:
+- Phase 0: Xcode scaffold, Metal pipeline, core types
+- Phase 1+2: Tectonic simulation, hydraulic erosion, river networks, climate pipeline
+- Phase 3: Portolan chart renderer — 7-pass Metal pipeline (merged via PR #1)
+- Phase 4: Settlement placement, save/load, manual override UI
 
-## Current Phase
-**Phase 0: Foundation**
-See IMPLEMENTATION-ROADMAP.md for full task list, acceptance criteria, and verification checklist.
+## Build & Run
+Open `Cartograph.xcodeproj` in Xcode 15.4+ and build for macOS 14+.
 
-## Key Decisions
-| Decision | Choice | Why |
-|----------|--------|-----|
-| Platform | macOS 14+ only | Easier dev loop than iPad; larger canvas |
-| Height map resolution | 1024×1024 internal, 4096×4096 export | Fast iteration; upsampled for export |
-| Coordinate system | Normalized UV (0.0–1.0) throughout | Eliminates cross-pipeline coordinate mismatch |
-| River generation | Flow accumulation from eroded height map | Produces correct branching watershed networks |
-| Typography | IM Fell English + Cinzel Decorative (bundled OFL fonts) | High quality, free to bundle, no procedural lettering complexity |
-| Document format | `.cartograph` directory bundle | macOS-native, diff-friendly, no database required |
-| Erosion | Metal compute shader from Phase 2 | CPU erosion at 1024² resolution is 30–120s — unacceptable |
-| External packages | None | Stay in-house so learner understands every algorithm |
+```bash
+# Command line build
+xcodebuild -project Cartograph.xcodeproj -scheme Cartograph -configuration Debug build
+```
 
-## Do NOT
-- Do not add features not in the current phase of IMPLEMENTATION-ROADMAP.md
-- Do not write any Swift struct that mirrors a struct in `ShaderTypes.h` — `ShaderTypes.h` is the source of truth for shared types; use the bridging header
-- Do not run terrain generation passes on the main actor — always dispatch to a background `Task {}`
-- Do not add network entitlements to the sandbox — this app is offline-only by design
-- Do not use CocoaPods or Carthage — Swift Package Manager only
-- Do not implement the style render pipeline before the terrain data pipeline is complete and verified
-- Do not skip GPU Frame Capture validation after adding any new Metal shader
+Requires macOS 14 Sonoma or later. No external dependencies to install.
+
+## Architecture
+- `Cartograph/` — SwiftUI app target: views, view models, `@Observable` state
+- `Cartograph/Metal/` — Metal shaders (`.metal`) and `ShaderTypes.h` (shared Swift/Metal structs)
+- `ShaderTypes.h` is the single source of truth for all Metal/Swift shared structs — never duplicated in Swift
+- All coordinate math in normalized UV space (0.0–1.0); converted to pixel space only at render time
+- Terrain generation pipeline runs in background `Task {}` blocks — never on the main actor
+- Document format: `.cartograph` directory bundle — macOS-native, diff-friendly, no database required
+- Bundled OFL fonts: IM Fell English + Cinzel Decorative
+
+## Known Issues
+- GPU Frame Capture validation should be run after any Metal shader changes
+- Export resolution is 4096×4096 upsampled from 1024×1024 internal — quality artifacts possible at high zoom
