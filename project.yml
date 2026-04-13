@@ -1,6 +1,6 @@
 name: Cartograph
 options:
-  bundleIdPrefix: com.yourname
+  bundleIdPrefix: com.cartograph
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
@@ -12,6 +12,7 @@ settings:
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     MTL_ENABLE_DEBUG_INFO: INCLUDE_SOURCE
     SWIFT_OBJC_BRIDGING_HEADER: Cartograph/Cartograph-Bridging-Header.h
+    DEVELOPMENT_TEAM: 3TGZFKFNA4
 
 targets:
   Cartograph:
@@ -36,7 +37,7 @@ targets:
       - sdk: CoreText.framework
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.yourname.cartograph
+        PRODUCT_BUNDLE_IDENTIFIER: com.cartograph.app
         INFOPLIST_FILE: Cartograph/App/Info.plist
 
   CartographTests:
