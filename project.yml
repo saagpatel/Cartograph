@@ -21,6 +21,8 @@ targets:
       - path: Cartograph
         excludes:
           - "*.md"
+    resources:
+      - path: Cartograph/Resources/PrivacyInfo.xcprivacy
     entitlements:
       path: Cartograph/Cartograph.entitlements
       properties:
