@@ -40,3 +40,45 @@ Requires macOS 14 Sonoma or later. No external dependencies to install.
 ## Known Issues
 - GPU Frame Capture validation should be run after any Metal shader changes
 - Export resolution is 4096×4096 upsampled from 1024×1024 internal — quality artifacts possible at high zoom
+
+<!-- portfolio-context:start -->
+# Portfolio Context
+
+## What This Project Is
+
+Cartograph is an active local project in the /Users/d/Projects portfolio.
+
+## Current State
+
+Phase 4 complete — all planned functionality shipped:
+- Phase 0: Xcode scaffold, Metal pipeline, core types
+- Phase 1+2: Tectonic simulation, hydraulic erosion, river networks, climate pipeline
+- Phase 3: Portolan chart renderer — 7-pass Metal pipeline (merged via PR #1)
+- Phase 4: Settlement placement, save/load, manual override UI
+
+## Stack
+
+- **Swift**: 5.10+ (Xcode 15.4+) — `@Observable` macro, no legacy `ObservableObject`
+- **SwiftUI**: macOS 14+ — declarative UI, no AppKit views except MTKView bridge
+- **Metal**: Metal 3 (macOS 14+) — 7-pass GPU render pipeline for portolan style
+- **MetalKit**: macOS 14+ — `MTKView` + `MTKViewDelegate` as the Metal/SwiftUI bridge
+- **Accelerate**: vDSP for CPU-side noise and biome smoothing
+- **Core Text**: label rendering and font layout
+- No external Swift packages — all algorithms in-house
+
+## How To Run
+
+Open `Cartograph.xcodeproj` in Xcode 15.4+ and build for macOS 14+.
+
+```bash
+
+## Known Risks
+
+- GPU Frame Capture validation should be run after any Metal shader changes
+- Export resolution is 4096×4096 upsampled from 1024×1024 internal — quality artifacts possible at high zoom
+
+## Next Recommended Move
+
+Use this context plus the README and supporting docs to resume the next active task, then promote the repo beyond minimum-viable by capturing a dedicated handoff, roadmap, or discovery artifact.
+
+<!-- portfolio-context:end -->
