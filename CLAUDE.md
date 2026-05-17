@@ -71,6 +71,11 @@ Phase 4 complete — all planned functionality shipped:
 Open `Cartograph.xcodeproj` in Xcode 15.4+ and build for macOS 14+.
 
 ```bash
+# Command line build
+xcodebuild -project Cartograph.xcodeproj -scheme Cartograph -configuration Debug build
+```
+
+Requires macOS 14 Sonoma or later. No external dependencies to install.
 
 ## Known Risks
 
