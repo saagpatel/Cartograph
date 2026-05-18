@@ -63,7 +63,7 @@ struct RiverPass: RenderPass {
         // -----------------------------------------------------------------------
         // Build UUID → node lookup
         // -----------------------------------------------------------------------
-        var nodeMap: [UUID: RiverNode] = Dictionary(uniqueKeysWithValues: nodes.map { ($0.id, $0) })
+        let nodeMap: [UUID: RiverNode] = Dictionary(uniqueKeysWithValues: nodes.map { ($0.id, $0) })
 
         // Find headwaters: nodes whose ID does not appear as a downstream of any other node
         let downstreamIDs = Set(nodes.compactMap { $0.downstream })
