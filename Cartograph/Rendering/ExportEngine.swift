@@ -133,8 +133,12 @@ struct ExportEngine {
             blit.synchronize(resource: target)
             blit.endEncoding()
         }
-        cb.commit()
-        cb.waitUntilCompleted()
+        await withCheckedContinuation { continuation in
+            cb.addCompletedHandler { _ in
+                continuation.resume()
+            }
+            cb.commit()
+        }
 
         // -----------------------------------------------------------------------
         // Read back pixels → CGImage → PNG

@@ -100,7 +100,7 @@ struct CoastlinePass: RenderPass {
             let minWidth:  Float = 1.5 / 1024.0
             let maxWidth:  Float = 3.5 / 1024.0
 
-            var polylinePoints: [StrokeGeometry.PolylinePoint] = wobbled.map { uv in
+            let polylinePoints: [StrokeGeometry.PolylinePoint] = wobbled.map { uv in
                 let n = (noise.simplex2D(x: uv.x * 300, y: uv.y * 300) + 1) * 0.5  // [0,1]
                 let w = minWidth + n * (maxWidth - minWidth)
                 return StrokeGeometry.PolylinePoint(position: uv, width: w, noise: n * 2 - 1)

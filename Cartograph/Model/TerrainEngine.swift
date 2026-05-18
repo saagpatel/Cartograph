@@ -111,9 +111,10 @@ class TerrainEngine {
                 seaLevel: seaLevel,
                 riverNodes: riverNodes
             )
+            let finalHeightData = erodedData
             await MainActor.run {
                 var finalMap = HeightMap()
-                finalMap.data = erodedData
+                finalMap.data = finalHeightData
                 finalMap.seaLevel = seaLevel
                 self.heightMap = finalMap
                 self.biomeMap = biomes
