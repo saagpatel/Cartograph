@@ -101,8 +101,9 @@ open Cartograph.xcodeproj
 
 In the app:
 
-1. **Seed** the generator with a known seed (e.g., `42`) via the SwiftUI
-   controls.
+1. **Seed** the generator with the canonical seed via the SwiftUI
+   **Proof Seed → Seed 42** control. This also switches the renderer to
+   **Portolan** mode.
 2. **Generate** — the pipeline runs: TectonicSimulator → HeightMap →
    ErosionEngine (Metal) → RiverNetwork → ClimateModel → SettlementPlacer.
 3. **Wait** for the MapRenderer to complete all portolan passes (Parchment,
