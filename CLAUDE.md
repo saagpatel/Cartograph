@@ -3,7 +3,7 @@
 A native macOS app (SwiftUI + Metal) that generates procedural fantasy world maps rendered in historical cartographic styles. Writers, game designers, and worldbuilders use it to produce maps that look hand-drawn by a historical cartographer — not computer-generated. Targets the Age of Exploration portolan chart style. Offline-only, no accounts, no network.
 
 ## Tech Stack
-- **Swift**: 5.10+ (Xcode 15.4+) — `@Observable` macro, no legacy `ObservableObject`
+- **Swift**: 5.10+ (Xcode 26.3+) — `@Observable` macro, no legacy `ObservableObject`
 - **SwiftUI**: macOS 14+ — declarative UI, no AppKit views except MTKView bridge
 - **Metal**: Metal 3 (macOS 14+) — 7-pass GPU render pipeline for portolan style
 - **MetalKit**: macOS 14+ — `MTKView` + `MTKViewDelegate` as the Metal/SwiftUI bridge
@@ -19,7 +19,7 @@ Phase 4 complete — all planned functionality shipped:
 - Phase 4: Settlement placement, save/load, manual override UI
 
 ## Build & Run
-Open `Cartograph.xcodeproj` in Xcode 15.4+ and build for macOS 14+.
+Open `Cartograph.xcodeproj` in Xcode 26.3+ and build for macOS 14+.
 
 ```bash
 # Command line build
@@ -30,7 +30,7 @@ Requires macOS 14 Sonoma or later. No external dependencies to install.
 
 ## Architecture
 - `Cartograph/` — SwiftUI app target: views, view models, `@Observable` state
-- `Cartograph/Metal/` — Metal shaders (`.metal`) and `ShaderTypes.h` (shared Swift/Metal structs)
+- `Cartograph/Shaders/` — Metal shaders (`.metal`) and `ShaderTypes.h` (shared Swift/Metal structs)
 - `ShaderTypes.h` is the single source of truth for all Metal/Swift shared structs — never duplicated in Swift
 - All coordinate math in normalized UV space (0.0–1.0); converted to pixel space only at render time
 - Terrain generation pipeline runs in background `Task {}` blocks — never on the main actor
@@ -58,7 +58,7 @@ Phase 4 complete — all planned functionality shipped:
 
 ## Stack
 
-- **Swift**: 5.10+ (Xcode 15.4+) — `@Observable` macro, no legacy `ObservableObject`
+- **Swift**: 5.10+ (Xcode 26.3+) — `@Observable` macro, no legacy `ObservableObject`
 - **SwiftUI**: macOS 14+ — declarative UI, no AppKit views except MTKView bridge
 - **Metal**: Metal 3 (macOS 14+) — 7-pass GPU render pipeline for portolan style
 - **MetalKit**: macOS 14+ — `MTKView` + `MTKViewDelegate` as the Metal/SwiftUI bridge
@@ -68,7 +68,7 @@ Phase 4 complete — all planned functionality shipped:
 
 ## How To Run
 
-Open `Cartograph.xcodeproj` in Xcode 15.4+ and build for macOS 14+.
+Open `Cartograph.xcodeproj` in Xcode 26.3+ and build for macOS 14+.
 
 ```bash
 # Command line build

@@ -19,7 +19,7 @@ Cartograph is a macOS procedural world-map generator that simulates plate tecton
 ## Quick Start
 
 ### Prerequisites
-- macOS 14.0+, Xcode 15+
+- macOS 14.0+, Xcode 26.3+
 - XcodeGen (`brew install xcodegen`)
 
 ### Installation
