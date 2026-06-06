@@ -6,6 +6,7 @@ struct ContentView: View {
     @State private var renderer = MapRenderer()
     @State private var engine   = TerrainEngine()
     @State private var params   = WorldParameters()
+    @State private var renderRevision = 0
 
     var body: some View {
         NavigationSplitView {
@@ -17,7 +18,7 @@ struct ContentView: View {
             )
         } detail: {
             ZStack {
-                MetalMapView(renderer: renderer) { uv in
+                MetalMapView(renderer: renderer, redrawRevision: renderRevision) { uv in
                     addSettlement(at: uv)
                 }
 
@@ -94,6 +95,7 @@ struct ContentView: View {
             let rgba = engine.debugTextureDataRGBA()
             renderer.updateDebugTexture(from: rgba, width: 1024, height: 1024)
         }
+        renderRevision &+= 1
     }
 
     // MARK: - Settlement add (Cmd+Click)
@@ -109,6 +111,7 @@ struct ContentView: View {
         ))
         // Rebuild label pass to include new settlement
         renderer.preparePasses(engine: engine)
+        renderRevision &+= 1
     }
 
     // MARK: - Save / Load

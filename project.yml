@@ -23,6 +23,7 @@ targets:
         excludes:
           - "*.md"
     resources:
+      - path: Cartograph/Resources/AppIcon.xcassets
       - path: Cartograph/Resources/PrivacyInfo.xcprivacy
     entitlements:
       path: Cartograph/Cartograph.entitlements
@@ -39,6 +40,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.cartograph.app
         INFOPLIST_FILE: Cartograph/App/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_HARDENED_RUNTIME: YES
 
   CartographTests:
     type: bundle.unit-test

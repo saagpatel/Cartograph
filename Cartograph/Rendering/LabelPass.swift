@@ -327,9 +327,14 @@ struct LabelPass: RenderPass {
                 continue
             }
             var error: Unmanaged<CFError>?
-            CTFontManagerRegisterFontsForURL(url as CFURL, .process, &error)
-            if let err = error {
-                print("[LabelPass] WARNING: font registration failed for \(name): \(err.takeRetainedValue())")
+            let registered = CTFontManagerRegisterFontsForURL(url as CFURL, .process, &error)
+            if !registered, let err = error {
+                let cfError = err.takeRetainedValue()
+                // CoreText returns 105 when a bundled font is already registered for this process.
+                if CFErrorGetCode(cfError) == 105 {
+                    continue
+                }
+                print("[LabelPass] WARNING: font registration failed for \(name): \(cfError)")
             }
         }
     }

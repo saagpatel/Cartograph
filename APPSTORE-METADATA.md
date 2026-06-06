@@ -66,13 +66,13 @@ Generate a hand-drawn fantasy world map in seconds. Every world is different. Ev
 
 ## Support URL
 
-https://github.com/d/Cartograph
+https://github.com/saagpatel/Cartograph
 
 ---
 
 ## Privacy Policy URL
 
-*(Required — can be a simple page stating no data is collected)*
+https://github.com/saagpatel/Cartograph/blob/main/PRIVACY.md
 
 ---
 
@@ -97,12 +97,22 @@ https://github.com/d/Cartograph
 | 5 | Export sheet | Export panel open, resolution set to 4096×4096, format PNG — finished map visible behind | "4096 × 4096. Print-ready." |
 
 ### How to Take Screenshots
-1. Build and run Cartograph: `xcodebuild -project Cartograph.xcodeproj -scheme Cartograph build`
+1. Build and run Cartograph: `./script/build_and_run.sh --verify`
 2. Launch the app and generate a world with a visually compelling result (retry a few times)
 3. Resize the window to match the target screenshot dimensions before capturing
 4. Use **Cmd+Shift+4** or `screencapture -l <window_id> screenshot.png` for pixel-accurate captures
 5. For Retina screenshots: capture on a Retina display or use `screencapture -x` to get 2x resolution
 6. Add marketing text overlays in Sketch, Figma, or Canva before uploading
+
+### Local Captures
+
+- `docs/media/appstore/cartograph-window-1280x800.png` — exact 1280×800 demo capture
+- `docs/media/appstore/cartograph-window-1440x900.png` — exact 1440×900 demo capture derived from the 2560×1600 local capture
+- `docs/media/appstore/cartograph-window-2560x1600.png` — exact 2560×1600 demo capture
+
+These are local proof/demo captures. Final App Store screenshots still need
+active-window polish, optional marketing overlays, and App Store Connect upload
+validation before submission.
 
 ---
 
@@ -130,17 +140,21 @@ No special permissions, entitlements, or hardware are required.
 ## Checklist Before Submission
 
 - [ ] Bundle ID `com.cartograph.app` registered in Apple Developer portal
-- [ ] App icon 1024×1024 appears correctly in Xcode asset catalog (no warnings)
-- [ ] Archive succeeds: `Product → Archive` with no errors (macOS target)
+- [x] App icon 1024×1024 appears correctly in Xcode asset catalog (no warnings; asset catalog added locally)
+- [x] Archive succeeds locally: `make archive` writes `.derivedData/archives/Cartograph.xcarchive` with Apple Development signing
+- [x] Hardened runtime enabled; strict `codesign` verification passes on the archive app
+- [ ] Gatekeeper/App Store distribution assessment passes with distribution signing and notarization (Apple Development archive is expected to be rejected by `spctl`)
 - [ ] Validate App passes with 0 errors (check entitlements — no unnecessary capabilities)
-- [ ] All screenshots uploaded at correct Mac App Store sizes (1280×800, 1440×900, 2560×1600)
+- [x] Local demo screenshots captured at 1280×800, 1440×900, and 2560×1600
+- [ ] All final screenshots uploaded at correct Mac App Store sizes (1280×800, 1440×900, 2560×1600)
 - [ ] Description, keywords, subtitle filled in App Store Connect
 - [ ] Price set to $4.99 (Tier 5) in Pricing and Availability
 - [ ] Age rating questionnaire complete (4+)
-- [ ] Support URL and Privacy Policy URL provided
-- [ ] PrivacyInfo.xcprivacy present (no network access, no data collected — minimal declaration)
-- [ ] Minimum deployment target set to macOS 14.0 in project settings
-- [ ] `.cartograph` document bundle UTI registered in Info.plist
-- [ ] Notarization complete before submission (`xcrun notarytool submit`)
+- [x] Support URL and Privacy Policy URL provided
+- [x] PrivacyInfo.xcprivacy present (no network access, no data collected — minimal declaration)
+- [x] Minimum deployment target set to macOS 14.0 in project settings
+- [x] `.cartograph` document bundle UTI registered in Info.plist
+- [ ] App Store export/TestFlight validation complete
+- [ ] Notarization complete for non-App-Store distribution (`xcrun notarytool submit`)
 - [ ] TestFlight (Mac) internal test complete (generate, save, export, reload)
 - [ ] Submit for Review

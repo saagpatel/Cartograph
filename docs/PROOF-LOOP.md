@@ -167,7 +167,7 @@ Document any pass over 10ms as a regression candidate.
 
 ```bash
 # Privacy manifest present (commit 8f382cb)
-ls Cartograph/PrivacyInfo.xcprivacy
+ls Cartograph/Resources/PrivacyInfo.xcprivacy
 
 # DEVELOPMENT_TEAM and real bundle ID set (commit 9de3cfd)
 grep -E "DEVELOPMENT_TEAM|bundleIdPrefix" project.yml
@@ -199,3 +199,21 @@ step 3 should also have a failure — start the bisect there.
 - After regenerating `project.yml` or upgrading Xcode
 - Whenever a visual regression is suspected — the stage gates pinpoint the
   source
+
+## Codex run loop
+
+Use the project-local runner for repeatable build and launch checks:
+
+```bash
+./script/build_and_run.sh --verify
+```
+
+For release packaging validation:
+
+```bash
+make archive
+codesign -dv --verbose=4 .derivedData/archives/Cartograph.xcarchive/Products/Applications/Cartograph.app 2>&1 | rg 'flags=|Runtime Version='
+```
+
+`make archive` proves the Xcode archive path and local signing are healthy. App
+Store/TestFlight export and notarization still require distribution validation.

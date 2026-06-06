@@ -19,7 +19,12 @@ Phase 4 complete — all planned functionality shipped:
 - Phase 4: Settlement placement, save/load, manual override UI
 
 ## Build & Run
-Open `Cartograph.xcodeproj` in Xcode 26.3+ and build for macOS 14+.
+Use the project-local runner for the normal Codex loop, or open
+`Cartograph.xcodeproj` in Xcode 26.3+ when you need the IDE.
+
+```bash
+./script/build_and_run.sh --verify
+```
 
 ```bash
 # Command line build
@@ -68,7 +73,12 @@ Phase 4 complete — all planned functionality shipped:
 
 ## How To Run
 
-Open `Cartograph.xcodeproj` in Xcode 26.3+ and build for macOS 14+.
+Use the project-local runner for the normal Codex loop, or open
+`Cartograph.xcodeproj` in Xcode 26.3+ when you need the IDE.
+
+```bash
+./script/build_and_run.sh --verify
+```
 
 ```bash
 # Command line build

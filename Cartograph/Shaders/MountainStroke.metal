@@ -68,7 +68,6 @@ fragment float4 mountain_fragment(MountainVertexOut in [[stage_in]]) {
     const float apexY  = 0.95;
     const float baseL  = 0.15;
     const float baseR  = 0.85;
-    const float baseY  = 0.0;
 
     // Interpolate left and right edges of triangle at this fragment's Y
     // Y=0 → base, Y=apexY → apex

@@ -4,6 +4,7 @@ import MetalKit
 struct MetalMapView: NSViewRepresentable {
 
     let renderer: MapRenderer
+    let redrawRevision: Int
     /// Called with a UV-space position when the user Cmd+Clicks on the canvas.
     var onCmdClick: ((SIMD2<Float>) -> Void)?
 

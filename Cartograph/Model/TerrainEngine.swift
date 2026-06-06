@@ -37,7 +37,7 @@ class TerrainEngine {
         case flowAccumulation = "Flow"
         case portolan = "Portolan"
     }
-    var debugMode: DebugMode = .heightMap
+    var debugMode: DebugMode = .portolan
 
     // MARK: - Full Pipeline
 
