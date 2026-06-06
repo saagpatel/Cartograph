@@ -40,10 +40,14 @@ make build
 make test
 make verify
 make archive
+make export-developer-id
 ```
 
 `make archive` requires a local Apple signing identity and writes the archive to
 `.derivedData/archives/Cartograph.xcarchive` by default.
+`make export-developer-id` creates a Developer ID signed app at
+`.derivedData/exports/developer-id/Cartograph.app`; notarization is still
+required before public distribution.
 
 ## Tech Stack
 

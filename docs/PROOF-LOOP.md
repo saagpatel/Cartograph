@@ -212,8 +212,23 @@ For release packaging validation:
 
 ```bash
 make archive
+make export-developer-id
 codesign -dv --verbose=4 .derivedData/archives/Cartograph.xcarchive/Products/Applications/Cartograph.app 2>&1 | rg 'flags=|Runtime Version='
+spctl -a -vvv --type execute .derivedData/exports/developer-id/Cartograph.app
 ```
 
-`make archive` proves the Xcode archive path and local signing are healthy. App
-Store/TestFlight export and notarization still require distribution validation.
+`make archive` proves the Xcode archive path and local signing are healthy.
+`make export-developer-id` proves Developer ID export works when the local
+Developer ID Application identity is installed. `spctl` is expected to reject
+the Developer ID export as `Unnotarized Developer ID` until notarization is
+completed.
+
+App Store/TestFlight export uses:
+
+```bash
+make export-app-store
+```
+
+As of June 6, 2026, this fails before export because no provisioning profile is
+available for `com.cartograph.app`. Register the bundle ID and create/download
+the App Store provisioning profile, then rerun the target.

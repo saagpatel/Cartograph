@@ -114,6 +114,15 @@ These are local proof/demo captures. Final App Store screenshots still need
 active-window polish, optional marketing overlays, and App Store Connect upload
 validation before submission.
 
+### Local Distribution Validation
+
+- `make archive` succeeds and writes `.derivedData/archives/Cartograph.xcarchive`.
+- `make export-developer-id` succeeds and writes `.derivedData/exports/developer-id/Cartograph.app`.
+- Strict `codesign` verification passes on the Developer ID export.
+- `spctl -a -vvv --type execute .derivedData/exports/developer-id/Cartograph.app` rejects the app as `Unnotarized Developer ID`, which is expected until notarization completes.
+- `make export-app-store` currently fails with `No profiles for 'com.cartograph.app' were found`; register the bundle ID and create/download the App Store provisioning profile before rerunning.
+- `notarytool` has no stored credential profile on this machine under the checked common names; store credentials before notarization.
+
 ---
 
 ## App Review Notes
@@ -144,7 +153,10 @@ No special permissions, entitlements, or hardware are required.
 - [x] Archive succeeds locally: `make archive` writes `.derivedData/archives/Cartograph.xcarchive` with Apple Development signing
 - [x] Hardened runtime enabled; strict `codesign` verification passes on the archive app
 - [ ] Gatekeeper/App Store distribution assessment passes with distribution signing and notarization (Apple Development archive is expected to be rejected by `spctl`)
+- [x] Developer ID export succeeds locally with Developer ID Application signing
+- [ ] Developer ID notarization credentials stored and notarization accepted
 - [ ] Validate App passes with 0 errors (check entitlements — no unnecessary capabilities)
+- [ ] App Store export succeeds; currently blocked by missing profile for `com.cartograph.app`
 - [x] Local demo screenshots captured at 1280×800, 1440×900, and 2560×1600
 - [ ] All final screenshots uploaded at correct Mac App Store sizes (1280×800, 1440×900, 2560×1600)
 - [ ] Description, keywords, subtitle filled in App Store Connect
