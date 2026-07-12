@@ -378,9 +378,11 @@ struct LabelPass: RenderPass {
             attrs as CFDictionary
         )!
         let line = CTLineCreateWithAttributedString(attrStr)
-        let bounds = CTLineGetImageBounds(line, ctx)
-        let lineW = bounds.width
-        let lineH = bounds.height
+        var ascent: CGFloat = 0
+        var descent: CGFloat = 0
+        var leading: CGFloat = 0
+        let lineW = CGFloat(CTLineGetTypographicBounds(line, &ascent, &descent, &leading))
+        let lineH = ascent + descent
 
         // Overlap grid check
         let gx0 = max(0, Int((centerX - lineW / 2) / cellW))
@@ -410,8 +412,10 @@ struct LabelPass: RenderPass {
         if abs(rotation) > 1e-6 {
             ctx.rotate(by: rotation)
         }
-        // CoreText text origin is at the baseline-left; offset so text is centred
-        ctx.textPosition = CGPoint(x: -lineW / 2, y: -lineH / 2)
+        // Map placement uses top-left coordinates, while CoreText expects Y-up.
+        // Flip only glyph space so labels stay upright at the same map position.
+        ctx.scaleBy(x: 1, y: -1)
+        ctx.textPosition = CGPoint(x: -lineW / 2, y: -(ascent - descent) / 2)
         CTLineDraw(line, ctx)
         ctx.restoreGState()
     }

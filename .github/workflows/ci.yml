@@ -6,19 +6,44 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  verify:
     runs-on: macos-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
       - name: Install xcodegen
         run: brew install xcodegen
       - name: Generate Xcode project
         run: xcodegen generate
-      - name: Build
+      - name: Test
+        run: |
+          xcodebuild test \
+            -scheme Cartograph \
+            -project Cartograph.xcodeproj \
+            -destination 'platform=macOS' \
+            -derivedDataPath .derivedData/ci-tests \
+            CODE_SIGNING_ALLOWED=NO
+      - name: Build release app
         run: |
           xcodebuild build \
             -scheme Cartograph \
             -project Cartograph.xcodeproj \
+            -configuration Release \
             -destination 'generic/platform=macOS' \
+            -derivedDataPath .derivedData/ci-release \
             CODE_SIGNING_ALLOWED=NO
+      - name: Validate release bundle
+        run: |
+          app='.derivedData/ci-release/Build/Products/Release/Cartograph.app'
+          test -d "$app"
+          test -f "$app/Contents/Resources/PrivacyInfo.xcprivacy"
+          test -f "$app/Contents/Resources/CinzelDecorative-Regular.ttf"
+          test -f "$app/Contents/Resources/IMFellEnglish-Regular.ttf"
+          test -f "$app/Contents/Resources/default.metallib"
+          test "$(plutil -extract CFBundleIdentifier raw "$app/Contents/Info.plist")" = 'com.cartograph.app'
+          plutil -lint "$app/Contents/Info.plist" "$app/Contents/Resources/PrivacyInfo.xcprivacy"
