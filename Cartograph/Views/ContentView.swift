@@ -7,6 +7,14 @@ struct ContentView: View {
     @State private var engine   = TerrainEngine()
     @State private var params   = WorldParameters()
     @State private var renderRevision = 0
+    @State private var isExporting = false
+    @State private var presentedError: PresentedError?
+
+    private struct PresentedError: Identifiable {
+        let id = UUID()
+        let title: String
+        let message: String
+    }
 
     var body: some View {
         NavigationSplitView {
@@ -45,18 +53,21 @@ struct ContentView: View {
                     saveDocument()
                 }
                 .disabled(engine.isGenerating)
+                .keyboardShortcut("s", modifiers: .command)
 
                 Button("Open") {
                     openDocument()
                 }
                 .disabled(engine.isGenerating)
+                .keyboardShortcut("o", modifiers: .command)
 
                 Divider()
 
-                Button("Export PNG") {
+                Button(isExporting ? "Exporting…" : "Export PNG") {
                     exportPNG()
                 }
-                .disabled(engine.debugMode != .portolan || engine.isGenerating)
+                .disabled(engine.debugMode != .portolan || engine.isGenerating || isExporting)
+                .keyboardShortcut("e", modifiers: [.command, .shift])
             }
         }
         .onAppear {
@@ -77,6 +88,18 @@ struct ContentView: View {
             if engine.isGenerating {
                 updateRendererTexture()
             }
+        }
+        .onChange(of: engine.settlements) {
+            guard engine.debugMode == .portolan, !engine.isGenerating else { return }
+            renderer.preparePasses(engine: engine)
+            renderRevision &+= 1
+        }
+        .alert(item: $presentedError) { error in
+            Alert(
+                title: Text(error.title),
+                message: Text(error.message),
+                dismissButton: .default(Text("OK"))
+            )
         }
     }
 
@@ -164,7 +187,7 @@ struct ContentView: View {
                 to: url
             )
         } catch {
-            print("[ContentView] Save failed: \(error)")
+            present(error, title: "Couldn’t Save World")
         }
     }
 
@@ -193,7 +216,7 @@ struct ContentView: View {
             engine.debugMode = .portolan
             updateRendererTexture()
         } catch {
-            print("[ContentView] Load failed: \(error)")
+            present(error, title: "Couldn’t Open World")
         }
     }
 
@@ -233,10 +256,22 @@ struct ContentView: View {
         panel.nameFieldStringValue = "world_map.png"
         panel.begin { response in
             if response == .OK, let url = panel.url {
+                isExporting = true
                 Task {
-                    try? await ExportEngine.export(renderer: renderer, engine: engine, to: url)
+                    defer { isExporting = false }
+                    do {
+                        try await ExportEngine.export(renderer: renderer, engine: engine, to: url)
+                    } catch {
+                        present(error, title: "Couldn’t Export PNG")
+                    }
                 }
             }
         }
+    }
+
+    @MainActor
+    private func present(_ error: Error, title: String) {
+        let message = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        presentedError = PresentedError(title: title, message: message)
     }
 }

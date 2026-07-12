@@ -1,7 +1,7 @@
 import Foundation
 import simd
 
-struct Settlement: Identifiable, Codable {
+struct Settlement: Identifiable, Codable, Equatable {
     let id: UUID
     var name: String
     var position: SIMD2<Float>

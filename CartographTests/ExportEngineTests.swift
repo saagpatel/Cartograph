@@ -7,6 +7,19 @@ import XCTest
 
 final class ExportEngineTests: XCTestCase {
 
+    func testExportErrorsProvideUserFacingDescriptions() {
+        let errors: [ExportEngine.ExportError] = [
+            .metalSetupFailed,
+            .textureCreationFailed,
+            .bufferCreationFailed,
+            .encoderCreationFailed,
+            .imageCreationFailed,
+            .fileWriteFailed,
+        ]
+
+        XCTAssertTrue(errors.allSatisfy { !($0.errorDescription ?? "").isEmpty })
+    }
+
     private var tempDir: URL!
 
     override func setUp() {

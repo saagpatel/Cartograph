@@ -49,6 +49,11 @@ make export-developer-id
 `.derivedData/exports/developer-id/Cartograph.app`; notarization is still
 required before public distribution.
 
+Export commands never ask Xcode to update Apple provisioning state by default.
+An operator who intentionally wants Xcode-managed provisioning may opt in with
+`PROVISIONING_UPDATE_FLAG=-allowProvisioningUpdates` after reviewing the active
+team and signing destination.
+
 ## Tech Stack
 
 | Layer | Technology |

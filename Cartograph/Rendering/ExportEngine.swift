@@ -11,13 +11,30 @@ import ImageIO
 
 struct ExportEngine {
 
-    enum ExportError: Error {
+    enum ExportError: LocalizedError {
         case metalSetupFailed
         case textureCreationFailed
         case bufferCreationFailed
         case encoderCreationFailed
         case imageCreationFailed
         case fileWriteFailed
+
+        var errorDescription: String? {
+            switch self {
+            case .metalSetupFailed:
+                return "Cartograph could not initialize Metal for export."
+            case .textureCreationFailed:
+                return "Cartograph could not allocate the 4096-pixel export surface."
+            case .bufferCreationFailed:
+                return "Cartograph could not allocate the export geometry buffers."
+            case .encoderCreationFailed:
+                return "Cartograph could not start the export renderer."
+            case .imageCreationFailed:
+                return "Cartograph rendered the map but could not create a PNG image."
+            case .fileWriteFailed:
+                return "Cartograph could not write the PNG to the selected location."
+            }
+        }
     }
 
     static func export(

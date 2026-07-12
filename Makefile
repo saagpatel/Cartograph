@@ -5,6 +5,7 @@ APP_STORE_EXPORT_PATH ?= .derivedData/exports/app-store-connect
 DEVELOPER_ID_EXPORT_PATH ?= .derivedData/exports/developer-id
 APP_STORE_EXPORT_OPTIONS ?= Config/ExportOptions/AppStoreConnect.plist
 DEVELOPER_ID_EXPORT_OPTIONS ?= Config/ExportOptions/DeveloperID.plist
+PROVISIONING_UPDATE_FLAG ?=
 
 generate:
 	xcodegen generate
@@ -25,10 +26,10 @@ archive: generate
 	xcodebuild -project Cartograph.xcodeproj -scheme Cartograph -configuration Release -destination 'generic/platform=macOS' -archivePath '$(ARCHIVE_PATH)' archive
 
 export-app-store: archive
-	xcodebuild -exportArchive -archivePath '$(ARCHIVE_PATH)' -exportPath '$(APP_STORE_EXPORT_PATH)' -exportOptionsPlist '$(APP_STORE_EXPORT_OPTIONS)' -allowProvisioningUpdates
+	xcodebuild -exportArchive -archivePath '$(ARCHIVE_PATH)' -exportPath '$(APP_STORE_EXPORT_PATH)' -exportOptionsPlist '$(APP_STORE_EXPORT_OPTIONS)' $(PROVISIONING_UPDATE_FLAG)
 
 export-developer-id: archive
-	xcodebuild -exportArchive -archivePath '$(ARCHIVE_PATH)' -exportPath '$(DEVELOPER_ID_EXPORT_PATH)' -exportOptionsPlist '$(DEVELOPER_ID_EXPORT_OPTIONS)' -allowProvisioningUpdates
+	xcodebuild -exportArchive -archivePath '$(ARCHIVE_PATH)' -exportPath '$(DEVELOPER_ID_EXPORT_PATH)' -exportOptionsPlist '$(DEVELOPER_ID_EXPORT_OPTIONS)' $(PROVISIONING_UPDATE_FLAG)
 
 clean:
 	rm -rf .build
