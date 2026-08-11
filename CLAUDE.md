@@ -51,7 +51,7 @@ Requires macOS 14 Sonoma or later. No external dependencies to install.
 
 ## What This Project Is
 
-Cartograph is an active local project in the /Users/d/Projects portfolio.
+Cartograph is an active local project in the ~/Projects portfolio.
 
 ## Current State
 

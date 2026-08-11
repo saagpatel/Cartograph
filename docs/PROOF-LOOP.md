@@ -27,7 +27,7 @@ system_profiler SPDisplaysDataType | grep "Metal Family"
 ## 1. Regenerate Xcode project from `project.yml`
 
 ```bash
-cd /Users/d/Projects/Cartograph
+cd ~/Projects/Cartograph
 xcodegen generate
 ```
 
