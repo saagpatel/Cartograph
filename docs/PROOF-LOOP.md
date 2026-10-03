@@ -1,9 +1,9 @@
 # Cartograph — Proof Loop
 
-A one-pass walkthrough that proves the procedural map pipeline works
-end-to-end: from a clean checkout to a rendered portolan-style fantasy map on
-screen. Each stage of the pipeline has a verification gate so a regression
-in any single stage is detectable.
+A walkthrough for checking the procedural map pipeline, from a clean checkout
+to a rendered portolan-style fantasy map on screen. Automated component checks
+and manual visual inspection provide different evidence; neither guarantees
+that every regression will be detected.
 
 > **Audience:** anyone resuming work, demoing the renderer, or capturing a
 > baseline before changes.
@@ -46,13 +46,15 @@ xcodebuild \
   -scheme Cartograph \
   -configuration Debug \
   -destination 'platform=macOS' \
-  build
+  build CODE_SIGNING_ALLOWED=NO
 ```
 
 **Expected:** `BUILD SUCCEEDED`. Metal shader compilation reports zero errors.
 
 **If it fails:**
-- `DEVELOPMENT_TEAM` mismatch — fix in `project.yml` per commit `9de3cfd`.
+- These unsigned commands do not need a signing team. If a signing error appears,
+  confirm that `CODE_SIGNING_ALLOWED=NO` reached xcodebuild; do not change the team
+  or provisioning state to run tests.
 - Shader compile errors usually mean a struct in `Cartograph-Bridging-Header.h`
   drifted from its Metal counterpart in `Shaders/`. See
   `ShaderTypesLayoutTests` for the layout contract.
@@ -68,7 +70,7 @@ xcodebuild \
   -project Cartograph.xcodeproj \
   -scheme Cartograph \
   -destination 'platform=macOS' \
-  test
+  test CODE_SIGNING_ALLOWED=NO
 ```
 
 **Expected coverage map (stage → test file):**
@@ -87,7 +89,7 @@ xcodebuild \
 | Doc serialization | `CartographDocumentTests` | Round-trip save/load of the full TerrainEngine state |
 | Shader struct ABI | `ShaderTypesLayoutTests` | Swift ↔ Metal struct layouts match |
 
-**If a single test fails:** that stage is the regression. Treat downstream
+**If a single test fails:** investigate that component and its dependencies. Treat downstream
 visual output as untrustworthy until the gate passes.
 
 ---
@@ -187,8 +189,8 @@ This loop mirrors the build proof captured at commits:
 - `c414fd4` — App Store metadata
 - Plus the full portolan pass pipeline shipped earlier
 
-If any visual element in step 5 is missing, the corresponding test file in
-step 3 should also have a failure — start the bisect there.
+If a visual element in step 5 is missing, inspect that render pass and its
+component tests. Passing unit tests do not guarantee the rendered visual output.
 
 ---
 
@@ -232,3 +234,34 @@ make export-app-store
 As of June 6, 2026, this fails before export because no provisioning profile is
 available for `com.cartograph.app`. Register the bundle ID and create/download
 the App Store provisioning profile, then rerun the target.
+
+## Choosing a verification lane
+
+Run from the repository root with full Xcode selected (Command Line Tools alone
+cannot build this macOS app), XcodeGen, and a Metal-capable Mac. The authoritative
+provider sequence is [ci.yml](../.github/workflows/ci.yml): generate the project,
+run unsigned XCTest, build the unsigned Release app, then inspect bundle
+resources and plists. Generated projects and `.derivedData/` are local outputs.
+
+For a focused test, generate first and select an existing XCTest class:
+
+```sh
+xcodegen generate
+xcodebuild test -project Cartograph.xcodeproj -scheme Cartograph \
+  -destination 'platform=macOS' -derivedDataPath .derivedData/focused-tests \
+  -only-testing:CartographTests/NoiseGeneratorTests CODE_SIGNING_ALLOWED=NO
+```
+
+Use `make test` for the full suite and `make build` for an unsigned Debug build.
+CI also validates Release packaging. No separate formatter/linter command is
+configured in this repository; do not report a build as a formatting check.
+If Xcode or Metal is unavailable, record the native lane as unavailable rather
+than substituting a browser check.
+
+Visual checks above matter when rendering/UI behavior changes. The
+`build_and_run.sh --verify` helper always stops processes named Cartograph and
+launches an app; it checks process presence only. Avoid it on an active session.
+Unit tests do not establish visual quality, export fidelity, or human acceptance.
+For manual export, choose a disposable output directory. Archive, signing,
+provisioning, notarization, and distribution remain separate release work;
+unsigned tests/builds need no Apple account or provisioning updates.
