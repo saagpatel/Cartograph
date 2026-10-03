@@ -9,8 +9,8 @@ Cartograph is a macOS procedural world-map generator that simulates plate tecton
 ## Features
 
 - **Tectonic simulation** — Voronoi-based plate generation with mountain ridges and rift valleys
-- **GPU erosion** — particle hydraulic erosion via Metal compute shaders (500,000 particles)
-- **Climate and biomes** — Köppen-simplified biome assignment from elevation and moisture
+- **GPU erosion** — particle hydraulic erosion via Metal compute shaders (500,000 particles by default)
+- **Climate and biomes** — Köppen-simplified biome assignment from latitude, elevation, and moisture
 - **River networks** — flow accumulation across the heightmap produces branching river graphs
 - **Settlement placement** — scored heuristic algorithm places settlements at defensible, resource-rich sites
 - **Portolan rendering** — multi-pass Metal pipeline: parchment, terrain, coastlines, rivers, mountain profiles, CoreText labels, compass rose, and sea-monster decorations
@@ -31,7 +31,7 @@ make build
 ```
 
 ### Usage
-Build and run, then click **Generate** to simulate a world and **Export** to save a 4096×4096 PNG to your chosen path.
+Build and run, then click **Generate World** to simulate a world and **Export PNG** to save a 4096×4096 PNG to your chosen path.
 
 For unsigned command-line checks:
 
@@ -70,9 +70,9 @@ team and signing destination.
 |-------|------------|
 | Language | Swift 5 |
 | UI | SwiftUI + NavigationSplitView |
-| GPU | Metal, MetalKit, MetalPerformanceShaders |
+| GPU | Metal, MetalKit; MetalPerformanceShaders linked but unused |
 | Typography | CoreText |
-| Math | Accelerate, simd |
+| Math | simd; Accelerate linked but unused |
 | Build | XcodeGen (project.yml) |
 
 ## License
