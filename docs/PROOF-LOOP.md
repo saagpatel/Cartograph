@@ -27,7 +27,7 @@ system_profiler SPDisplaysDataType | grep "Metal Family"
 ## 1. Regenerate Xcode project from `project.yml`
 
 ```bash
-cd ~/Projects/Cartograph
+# Run from the repository root
 xcodegen generate
 ```
 
@@ -55,15 +55,15 @@ xcodebuild \
 - These unsigned commands do not need a signing team. If a signing error appears,
   confirm that `CODE_SIGNING_ALLOWED=NO` reached xcodebuild; do not change the team
   or provisioning state to run tests.
-- Shader compile errors usually mean a struct in `Cartograph-Bridging-Header.h`
-  drifted from its Metal counterpart in `Shaders/`. See
+- For shader struct errors, inspect `Cartograph/Shaders/ShaderTypes.h`, shared
+  with Swift via `Cartograph/Cartograph-Bridging-Header.h`. See
   `ShaderTypesLayoutTests` for the layout contract.
 
 ---
 
 ## 3. Run the unit-test suite — pipeline stage gates
 
-Each test file gates one stage of the generation pipeline.
+Component tests cover the stages below; no test invokes the full generation pipeline.
 
 ```bash
 xcodebuild \
@@ -77,17 +77,17 @@ xcodebuild \
 
 | Pipeline stage | Test file | What it proves |
 |---|---|---|
-| Noise primitive | `NoiseGeneratorTests` | Perlin/simplex producers deterministic, in range |
-| Tectonic plate sim | `TectonicSimulatorTests` | Plate motion + boundary types produce expected heightmap features |
-| Heightmap shape | `HeightMapTests` | 1024×1024 Float32 grid, no NaN, valid range |
-| Erosion (Metal) | (covered indirectly) | Eroded heightmap doesn't NaN; SettlementPlacer downstream works |
-| River network | `RiverNetworkTests` | Flow accumulation builds a valid `RiverGraph`, no cycles |
-| Climate / biomes | `ClimateModelTests` | BiomeMap enum coverage; latitude bands behave |
-| Settlement placement | `SettlementPlacerTests` | Settlements respect water/elevation/biome constraints |
+| Noise primitive | `NoiseGeneratorTests` | Simplex determinism/seed variation and sampled simplex/fBm ranges |
+| Tectonic plate sim | `TectonicSimulatorTests` | Determinism, height ranges, mountain-height response, and sea-level propagation |
+| Heightmap shape | `HeightMapTests` | 1024×1024 allocation, row-major indexing, UV conversion, default sea level |
+| Erosion (Metal) | (not covered) | No test invokes ErosionEngine or the full pipeline |
+| River network | `RiverNetworkTests` | RiverNode descent, downstream accumulation, determinism, river count, flow-map range |
+| Climate / biomes | `ClimateModelTests` | Selected biome assignments, ocean classification, determinism, moisture range |
+| Settlement placement | `SettlementPlacerTests` | On-land placement, spacing, minimum count, and determinism |
 | Coastline geometry | `MarchingSquaresTests` | MS contour for the coastline produces closed loops at known thresholds |
-| Stroke geometry | `StrokeGeometryTests` | Variable-width wobbly stroke math (used by CoastlinePass, RiverPass) |
-| Doc serialization | `CartographDocumentTests` | Round-trip save/load of the full TerrainEngine state |
-| Shader struct ABI | `ShaderTypesLayoutTests` | Swift ↔ Metal struct layouts match |
+| Stroke geometry | `StrokeGeometryTests` | Strip vertex/index counts, width offsets, and empty/single-point inputs |
+| Doc serialization | `CartographDocumentTests` | Synthetic bundle save/load, selected metadata/data values, settlements, and missing-path errors |
+| Shader struct ABI | `ShaderTypesLayoutTests` | Selected imported C-struct sizes match expected constants; no Metal-side comparison |
 
 **If a single test fails:** investigate that component and its dependencies. Treat downstream
 visual output as untrustworthy until the gate passes.
@@ -138,8 +138,9 @@ For seed `42` (the canonical proof seed):
 
 The portolan pipeline is pass-isolated. To prove a single pass independently:
 
-- **Coastline only:** disable other passes in the renderer's pass list, leave
-  `ParchmentPass` + `CoastlinePass` enabled. Visual output should show only
+- **Coastline only:** temporarily omit other encode calls in
+  `Cartograph/Rendering/MapRenderer.swift`, keeping preparation intact and
+  `ParchmentPass` + `CoastlinePass` encoding enabled. Visual output should show only
   coastline strokes on parchment.
 - **River only:** Parchment + River. Should show rivers floating with no land
   context — useful for spotting stroke-geometry regressions.
@@ -158,7 +159,7 @@ math, not pixel output.
 # Look for:
 #   - Each portolan pass < 5ms on M3 Pro
 #   - No CPU-side blocking waits between passes
-#   - Texture cache hits for ParchmentPass (cached after first render)
+#   - ParchmentPass texture reuse (baked during prepare, reused by encode)
 ```
 
 Document any pass over 10ms as a regression candidate.
@@ -196,7 +197,7 @@ component tests. Passing unit tests do not guarantee the rendered visual output.
 
 ## When to re-run the loop
 
-- After any change to a Pipeline stage (`Pipeline/` or `Shaders/`)
+- After any change to a Pipeline stage (`Cartograph/Pipeline/` or `Cartograph/Shaders/`)
 - Before opening an App Store submission PR
 - After regenerating `project.yml` or upgrading Xcode
 - Whenever a visual regression is suspected — the stage gates pinpoint the
