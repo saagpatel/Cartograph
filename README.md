@@ -27,18 +27,28 @@ Cartograph is a macOS procedural world-map generator that simulates plate tecton
 git clone https://github.com/saagpatel/Cartograph.git
 cd Cartograph
 xcodegen generate
-./script/build_and_run.sh --verify
+make build
 ```
 
 ### Usage
 Build and run, then click **Generate** to simulate a world and **Export** to save a 4096×4096 PNG to your chosen path.
 
-For command-line checks:
+For unsigned command-line checks:
 
 ```bash
 make build
 make test
-make verify
+```
+
+See [PROOF-LOOP.md](docs/PROOF-LOOP.md) for focused tests and visual validation.
+`make verify` runs the launch helper: it stops any process named Cartograph,
+opens the newly built app, and checks that a process exists after two seconds.
+Use it only when interrupting an existing Cartograph session is acceptable;
+it does not run XCTest or validate rendered output.
+
+Signed release artifacts are a separate operator step:
+
+```bash
 make archive
 make export-developer-id
 ```

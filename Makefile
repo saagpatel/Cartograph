@@ -14,7 +14,7 @@ build: generate
 	xcodebuild -project Cartograph.xcodeproj -scheme Cartograph -configuration Debug -destination 'platform=macOS' build CODE_SIGNING_ALLOWED=NO
 
 test: generate
-	xcodebuild -project Cartograph.xcodeproj -scheme Cartograph -destination 'platform=macOS' test
+	xcodebuild -project Cartograph.xcodeproj -scheme Cartograph -destination 'platform=macOS' test CODE_SIGNING_ALLOWED=NO
 
 run:
 	./script/build_and_run.sh
